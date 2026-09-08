@@ -1,0 +1,55 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "LL124-Arch/moon_ctx_weaver"
+
+import {
+  "moonbitlang/core/debug",
+}
+
+// Values
+pub fn budget_policy(max_input_tokens~ : Int, reserved_output_tokens? : Int) -> BudgetPolicy
+
+pub fn context_node(id~ : String, kind~ : ContextKind, variants~ : Array[ContextVariant], order~ : Int, priority? : Int, required? : Bool, depends_on? : Array[String]) -> ContextNode
+
+pub fn context_variant(label~ : String, content~ : String, token_cost~ : Int, quality~ : Int) -> ContextVariant
+
+// Errors
+
+// Types and methods
+pub(all) struct BudgetPolicy {
+  max_input_tokens : Int
+  reserved_output_tokens : Int
+} derive(Eq, @debug.Debug)
+pub fn BudgetPolicy::available_input_tokens(Self) -> Int
+
+pub(all) enum ContextKind {
+  SystemInstruction
+  DeveloperInstruction
+  UserMessage
+  AssistantMessage
+  ToolDefinition
+  ToolCall
+  ToolResult
+  RetrievedContext
+  Memory
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ContextNode {
+  id : String
+  kind : ContextKind
+  variants : Array[ContextVariant]
+  order : Int
+  priority : Int
+  required : Bool
+  depends_on : Array[String]
+} derive(Eq, @debug.Debug)
+
+pub(all) struct ContextVariant {
+  label : String
+  content : String
+  token_cost : Int
+  quality : Int
+} derive(Eq, @debug.Debug)
+
+// Type aliases
+
+// Traits
