@@ -1,0 +1,53 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: test / ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [native, js, wasm, wasm-gc]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: moon update
+      - name: Check
+        run: moon check --target "${{ matrix.target }}" --warn-list +73 --deny-warn
+      - name: Test
+        run: moon test --target "${{ matrix.target }}"
+
+  reproducibility:
+    name: generated files and golden output
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash -s latest
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+      - name: Resolve dependencies
+        run: moon update
+      - name: Check generated interface and formatting
+        run: |
+          moon info
+          moon fmt
+          git diff --exit-code
+      - name: Compare benchmark golden
+        run: |
+          moon run cmd/moon_ctx_weaver --target native -- --benchmark scenarios/customer_support.json scenarios/coding_agent.json scenarios/research_agent.json > benchmark.actual.tsv
+          diff -u golden/benchmark.tsv benchmark.actual.tsv
+      - name: Compare plan golden
+        run: |
+          moon run cmd/moon_ctx_weaver --target native -- scenarios/customer_support.json --format json > customer_support.actual.json
+          diff -u golden/customer_support.plan.json customer_support.actual.json

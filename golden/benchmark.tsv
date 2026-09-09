@@ -1,0 +1,4 @@
+scenario	used	baseline	reduction	quality
+scenarios/customer_support.json	360	640	43%	89%
+scenarios/coding_agent.json	420	800	47%	89%
+scenarios/research_agent.json	450	850	47%	91%

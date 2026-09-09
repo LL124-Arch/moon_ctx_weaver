@@ -1,0 +1,49 @@
+{
+  "available_tokens": 360,
+  "used_tokens": 360,
+  "original_tokens": 640,
+  "quality_retention_percent": 89,
+  "rendered_context": "Apply refund and identity rules; protect private notes; escalate exceptions.\n\nMy annual plan renewed yesterday, but I meant to cancel it. Please check whether the payment can be refunded.\n\nlookup_account(customer_id): returns subscription, payment, verification, and previous refund fields with validation rules.\n\nVerified; renewal settled yesterday; no previous refund or chargeback.\n\nEarlier: customer compared billing options and confirmed contact email.",
+  "decisions": [
+    {
+      "node_id": "service_policy",
+      "selected_variant": "compact",
+      "token_cost": 70,
+      "quality": 92,
+      "upgraded": false,
+      "reason": "required"
+    },
+    {
+      "node_id": "customer_request",
+      "selected_variant": "full",
+      "token_cost": 80,
+      "quality": 100,
+      "upgraded": true,
+      "reason": "required"
+    },
+    {
+      "node_id": "account_tool",
+      "selected_variant": "full",
+      "token_cost": 100,
+      "quality": 100,
+      "upgraded": true,
+      "reason": "selected_for_utility"
+    },
+    {
+      "node_id": "account_result",
+      "selected_variant": "preview",
+      "token_cost": 60,
+      "quality": 82,
+      "upgraded": false,
+      "reason": "selected_for_utility"
+    },
+    {
+      "node_id": "older_conversation",
+      "selected_variant": "compact",
+      "token_cost": 50,
+      "quality": 75,
+      "upgraded": false,
+      "reason": "selected_for_utility"
+    }
+  ]
+}
