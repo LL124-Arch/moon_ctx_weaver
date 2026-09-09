@@ -1,0 +1,77 @@
+{
+  "policy": { "max_input_tokens": 450, "reserved_output_tokens": 0 },
+  "nodes": [
+    {
+      "id": "research_protocol",
+      "kind": "system_instruction",
+      "order": 0,
+      "priority": 100,
+      "required": true,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Use primary sources, separate evidence from inference, preserve citation provenance, and state limitations in the final synthesis.", "token_cost": 110, "quality": 100 },
+        { "label": "compact", "content": "Prefer primary sources; preserve provenance; label inference and limitations.", "token_cost": 65, "quality": 93 }
+      ]
+    },
+    {
+      "id": "research_question",
+      "kind": "user_message",
+      "order": 1,
+      "priority": 100,
+      "required": true,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Compare proven approaches for allocating limited context windows while respecting relationships between retrieved passages and tools.", "token_cost": 70, "quality": 100 },
+        { "label": "compact", "content": "Compare context budgeting methods that preserve passage and tool dependencies.", "token_cost": 45, "quality": 94 }
+      ]
+    },
+    {
+      "id": "search_tool",
+      "kind": "tool_definition",
+      "order": 2,
+      "priority": 90,
+      "required": false,
+      "depends_on": ["research_protocol"],
+      "variants": [
+        { "label": "full", "content": "search_papers(query, year_range, venue): returns titles, abstracts, identifiers, venue metadata, and source links.", "token_cost": 120, "quality": 100 },
+        { "label": "compact", "content": "search_papers(query): primary-paper metadata and source links.", "token_cost": 50, "quality": 90 }
+      ]
+    },
+    {
+      "id": "paper_snippets",
+      "kind": "retrieved_context",
+      "order": 3,
+      "priority": 95,
+      "required": false,
+      "depends_on": ["search_tool"],
+      "variants": [
+        { "label": "full", "content": "Detailed extracts covering knapsack approximation, precedence-constrained selection, cache-aware prompting, evaluation design, and reported limitations.", "token_cost": 220, "quality": 100 },
+        { "label": "preview", "content": "Evidence: knapsack heuristics, precedence constraints, prompt caching, evaluation limits.", "token_cost": 80, "quality": 86 }
+      ]
+    },
+    {
+      "id": "working_notes",
+      "kind": "memory",
+      "order": 4,
+      "priority": 70,
+      "required": false,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Working notes compare assumptions, objective functions, dependency semantics, approximation guarantees, and deployment constraints across sources.", "token_cost": 180, "quality": 100 },
+        { "label": "compact", "content": "Notes align assumptions, objectives, dependency semantics, and deployment limits.", "token_cost": 60, "quality": 83 }
+      ]
+    },
+    {
+      "id": "older_search_result",
+      "kind": "tool_result",
+      "order": 5,
+      "priority": 25,
+      "required": false,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Earlier search results provide complete bibliographic metadata and a discarded but useful comparison with generic summarization systems.", "token_cost": 150, "quality": 100 },
+        { "label": "preview", "content": "Earlier search mainly covered generic summarization.", "token_cost": 40, "quality": 65 }
+      ]
+    }
+  ]
+}

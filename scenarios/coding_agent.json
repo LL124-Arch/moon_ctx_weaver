@@ -1,0 +1,77 @@
+{
+  "policy": { "max_input_tokens": 440, "reserved_output_tokens": 0 },
+  "nodes": [
+    {
+      "id": "engineering_rules",
+      "kind": "system_instruction",
+      "order": 0,
+      "priority": 100,
+      "required": true,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Make minimal repository changes, preserve public behavior, add regression tests, and report verification without hiding failures.", "token_cost": 100, "quality": 100 },
+        { "label": "compact", "content": "Make minimal changes, preserve APIs, add regression tests, report failures.", "token_cost": 60, "quality": 92 }
+      ]
+    },
+    {
+      "id": "bug_request",
+      "kind": "user_message",
+      "order": 1,
+      "priority": 100,
+      "required": true,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Fix the cache invalidation bug that leaves stale package metadata after a workspace dependency is removed.", "token_cost": 90, "quality": 100 },
+        { "label": "compact", "content": "Fix stale package metadata after dependency removal.", "token_cost": 60, "quality": 92 }
+      ]
+    },
+    {
+      "id": "repository_map",
+      "kind": "retrieved_context",
+      "order": 2,
+      "priority": 80,
+      "required": false,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Repository map with cache ownership, manifest parsing, dependency graph updates, package index persistence, and integration test locations.", "token_cost": 180, "quality": 100 },
+        { "label": "compact", "content": "Relevant areas: manifest parser, dependency graph, package cache, integration tests.", "token_cost": 70, "quality": 88 }
+      ]
+    },
+    {
+      "id": "compiler_diagnostics",
+      "kind": "tool_result",
+      "order": 3,
+      "priority": 95,
+      "required": false,
+      "depends_on": ["repository_map"],
+      "variants": [
+        { "label": "full", "content": "Failure trace shows remove_dependency updates the manifest and graph, but package_cache retains the deleted key until the next process start.", "token_cost": 140, "quality": 100 },
+        { "label": "preview", "content": "Trace: manifest and graph update; package_cache keeps deleted key.", "token_cost": 45, "quality": 85 }
+      ]
+    },
+    {
+      "id": "test_log",
+      "kind": "tool_result",
+      "order": 4,
+      "priority": 80,
+      "required": false,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Integration log including setup, dependency removal, cache lookup, restart behavior, assertions, and cleanup for three operating systems.", "token_cost": 160, "quality": 100 },
+        { "label": "compact", "content": "Regression fails before restart and passes after restart; cache lookup is stale.", "token_cost": 55, "quality": 82 }
+      ]
+    },
+    {
+      "id": "older_debug_chat",
+      "kind": "memory",
+      "order": 5,
+      "priority": 30,
+      "required": false,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Previous debugging explored parser errors, filesystem timestamps, cache serialization, and process boundaries before isolating invalidation.", "token_cost": 130, "quality": 100 },
+        { "label": "compact", "content": "Earlier debugging ruled out parser and timestamp issues.", "token_cost": 35, "quality": 65 }
+      ]
+    }
+  ]
+}

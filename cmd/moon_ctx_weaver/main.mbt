@@ -1,7 +1,17 @@
 ///|
 fn run_cli(args : Array[String]) -> Unit raise {
+  if args.length() >= 2 && args[1] == "--benchmark" {
+    let paths = []
+    for index in 2..<args.length() {
+      paths.push(args[index])
+    }
+    run_benchmark(paths)
+    return
+  }
   if args.length() < 2 || args.length() > 4 {
-    raise Usage("moon_ctx_weaver <scenario.json> [--format text|json]")
+    raise Usage(
+      "moon_ctx_weaver <scenario.json> [--format text|json] | --benchmark <scenario.json>...",
+    )
   }
   let path = args[1]
   let format = if args.length() == 2 {
@@ -9,7 +19,9 @@ fn run_cli(args : Array[String]) -> Unit raise {
   } else if args.length() == 4 && args[2] == "--format" {
     args[3]
   } else {
-    raise Usage("moon_ctx_weaver <scenario.json> [--format text|json]")
+    raise Usage(
+      "moon_ctx_weaver <scenario.json> [--format text|json] | --benchmark <scenario.json>...",
+    )
   }
   let scenario = decode_scenario(@fs.read_file_to_string(path))
   let plan = @core.plan(scenario.nodes, scenario.policy)

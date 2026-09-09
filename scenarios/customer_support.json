@@ -1,0 +1,65 @@
+{
+  "policy": { "max_input_tokens": 360, "reserved_output_tokens": 0 },
+  "nodes": [
+    {
+      "id": "service_policy",
+      "kind": "system_instruction",
+      "order": 0,
+      "priority": 100,
+      "required": true,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Follow the refund, identity verification, privacy, and escalation policy. Never reveal internal account notes.", "token_cost": 120, "quality": 100 },
+        { "label": "compact", "content": "Apply refund and identity rules; protect private notes; escalate exceptions.", "token_cost": 70, "quality": 92 }
+      ]
+    },
+    {
+      "id": "customer_request",
+      "kind": "user_message",
+      "order": 1,
+      "priority": 100,
+      "required": true,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "My annual plan renewed yesterday, but I meant to cancel it. Please check whether the payment can be refunded.", "token_cost": 80, "quality": 100 },
+        { "label": "compact", "content": "Customer requests a refund for yesterday's unintended annual renewal.", "token_cost": 55, "quality": 92 }
+      ]
+    },
+    {
+      "id": "account_tool",
+      "kind": "tool_definition",
+      "order": 2,
+      "priority": 90,
+      "required": false,
+      "depends_on": ["service_policy"],
+      "variants": [
+        { "label": "full", "content": "lookup_account(customer_id): returns subscription, payment, verification, and previous refund fields with validation rules.", "token_cost": 100, "quality": 100 },
+        { "label": "compact", "content": "lookup_account(customer_id): subscription, payment, verification, refund history.", "token_cost": 45, "quality": 88 }
+      ]
+    },
+    {
+      "id": "account_result",
+      "kind": "tool_result",
+      "order": 3,
+      "priority": 95,
+      "required": false,
+      "depends_on": ["account_tool"],
+      "variants": [
+        { "label": "full", "content": "Account is verified. Annual renewal settled yesterday. No prior refund, chargeback, policy exception, or active cancellation request exists.", "token_cost": 180, "quality": 100 },
+        { "label": "preview", "content": "Verified; renewal settled yesterday; no previous refund or chargeback.", "token_cost": 60, "quality": 82 }
+      ]
+    },
+    {
+      "id": "older_conversation",
+      "kind": "memory",
+      "order": 4,
+      "priority": 60,
+      "required": false,
+      "depends_on": [],
+      "variants": [
+        { "label": "full", "content": "Earlier conversation: the customer asked about monthly billing, compared annual pricing, and confirmed the contact email used on the account.", "token_cost": 160, "quality": 100 },
+        { "label": "compact", "content": "Earlier: customer compared billing options and confirmed contact email.", "token_cost": 50, "quality": 75 }
+      ]
+    }
+  ]
+}
