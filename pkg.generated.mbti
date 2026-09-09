@@ -14,11 +14,17 @@ pub fn context_node(id~ : String, kind~ : ContextKind, variants~ : Array[Context
 
 pub fn context_variant(label~ : String, content~ : String, token_cost~ : Int, quality~ : Int) -> ContextVariant
 
+pub fn lexical_score(String, String) -> Int
+
+pub fn message_node(id~ : String, kind~ : ContextKind, content~ : String, token_cost~ : Int, order~ : Int, priority? : Int, required? : Bool, depends_on? : Array[String]) -> ContextNode
+
 pub fn plan(Array[ContextNode], BudgetPolicy) -> ContextPlan raise PlanError
 
 pub fn render(ContextPlan) -> String
 
 pub fn required_closure(Array[ContextNode]) -> Array[String] raise PlanError
+
+pub fn tool_definition_node(id~ : String, description~ : String, token_cost~ : Int, order~ : Int, priority? : Int, required? : Bool, depends_on? : Array[String]) -> ContextNode
 
 pub fn validate_graph(Array[ContextNode]) -> Unit raise PlanError
 

@@ -79,3 +79,55 @@ pub fn budget_policy(
 pub fn BudgetPolicy::available_input_tokens(self : BudgetPolicy) -> Int {
   self.max_input_tokens - self.reserved_output_tokens
 }
+
+///|
+/// Build a common message node with one full-fidelity representation.
+pub fn message_node(
+  id~ : String,
+  kind~ : ContextKind,
+  content~ : String,
+  token_cost~ : Int,
+  order~ : Int,
+  priority? : Int = 100,
+  required? : Bool = true,
+  depends_on? : Array[String] = [],
+) -> ContextNode {
+  context_node(
+    id~,
+    kind~,
+    variants=[context_variant(label="full", content~, token_cost~, quality=100)],
+    order~,
+    priority~,
+    required~,
+    depends_on~,
+  )
+}
+
+///|
+/// Build a common tool-definition node with one full representation.
+pub fn tool_definition_node(
+  id~ : String,
+  description~ : String,
+  token_cost~ : Int,
+  order~ : Int,
+  priority? : Int = 50,
+  required? : Bool = false,
+  depends_on? : Array[String] = [],
+) -> ContextNode {
+  context_node(
+    id~,
+    kind=ToolDefinition,
+    variants=[
+      context_variant(
+        label="full",
+        content=description,
+        token_cost~,
+        quality=100,
+      ),
+    ],
+    order~,
+    priority~,
+    required~,
+    depends_on~,
+  )
+}
