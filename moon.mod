@@ -8,9 +8,9 @@ repository = "https://github.com/LL124-Arch/moon_ctx_weaver"
 
 license = "Apache-2.0"
 
-keywords = [ "agent", "context", "token-budget", "optimization" ]
+keywords = [ "agent", "llm", "context", "token-budget", "optimization" ]
 
-description = "Dependency-aware context budgeting for MoonBit agents"
+description = "Deterministic dependency-aware context budgeting for MoonBit agents"
 
 import {
   "moonbitlang/x@0.5.1",

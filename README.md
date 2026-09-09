@@ -20,4 +20,39 @@ moon run cmd/moon_ctx_weaver --target native -- --benchmark scenarios/customer_s
 
 这些数字来自场景中明确写出的成本和质量估计，并不是精确 tokenizer 或真实模型评测的替代品。它们的作用是让规划策略能够离线复现，后续也容易接入更可信的测量结果。
 
+## 在项目里使用
+
+`0.1.0` 发布到 Mooncakes 后，可以用 `moon add LL124-Arch/moon_ctx_weaver@0.1.0` 添加依赖，并在使用它的 `moon.pkg` 中导入 `LL124-Arch/moon_ctx_weaver`。目前也可以从这个仓库检出源码直接运行示例。
+
+调用方仍然负责给出 token 成本，因为不同模型的 tokenizer 并不相同。下面的例子刻意保留这个数字，而不是让库用一个看似方便但不可验证的估算替代它：
+
+```moonbit
+let nodes = [
+  @moon_ctx_weaver.message_node(
+    id="request",
+    kind=UserMessage,
+    content="find the stale cache entry",
+    token_cost=8,
+    order=0,
+  ),
+  @moon_ctx_weaver.tool_definition_node(
+    id="search",
+    description="search_cache(key)",
+    token_cost=12,
+    order=1,
+    priority=@moon_ctx_weaver.lexical_score(
+      "stale cache",
+      "search cache entries by key",
+    ),
+  ),
+]
+let result = @moon_ctx_weaver.plan(
+  nodes,
+  @moon_ctx_weaver.budget_policy(max_input_tokens=20),
+)
+println(@moon_ctx_weaver.render(result))
+```
+
+规划器先保证必选节点及其传递依赖完整，再以稳定的整数效用/成本比较选择可选闭包，最后利用剩余空间升级表示。因此相同输入在 native、JavaScript、WebAssembly 与 WebAssembly GC 后端上会得到一致结果，但这是一套可解释的确定性启发式，而不是全局最优证明。
+
 项目使用 Apache-2.0 许可证。
