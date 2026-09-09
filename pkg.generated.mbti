@@ -6,6 +6,8 @@ import {
 }
 
 // Values
+pub fn audit_report(ContextPlan) -> String
+
 pub fn budget_policy(max_input_tokens~ : Int, reserved_output_tokens? : Int) -> BudgetPolicy
 
 pub fn context_node(id~ : String, kind~ : ContextKind, variants~ : Array[ContextVariant], order~ : Int, priority? : Int, required? : Bool, depends_on? : Array[String]) -> ContextNode
@@ -13,6 +15,8 @@ pub fn context_node(id~ : String, kind~ : ContextKind, variants~ : Array[Context
 pub fn context_variant(label~ : String, content~ : String, token_cost~ : Int, quality~ : Int) -> ContextVariant
 
 pub fn plan(Array[ContextNode], BudgetPolicy) -> ContextPlan raise PlanError
+
+pub fn render(ContextPlan) -> String
 
 pub fn required_closure(Array[ContextNode]) -> Array[String] raise PlanError
 
@@ -63,9 +67,16 @@ pub(all) struct ContextPlan {
   selected : Array[SelectedContext]
   used : Int
   available : Int
+  original : Int
+  retained_quality : Int
+  original_quality : Int
+  node_decisions : Array[NodeDecision]
 } derive(Eq, @debug.Debug)
 pub fn ContextPlan::available_tokens(Self) -> Int
 pub fn ContextPlan::contains(Self, String) -> Bool
+pub fn ContextPlan::decisions(Self) -> Array[NodeDecision]
+pub fn ContextPlan::original_tokens(Self) -> Int
+pub fn ContextPlan::quality_retention_percent(Self) -> Int
 pub fn ContextPlan::selected_variant(Self, String) -> String?
 pub fn ContextPlan::used_tokens(Self) -> Int
 
@@ -74,6 +85,24 @@ pub(all) struct ContextVariant {
   content : String
   token_cost : Int
   quality : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) enum DecisionReason {
+  Required
+  RequiredDependency
+  SelectedForUtility
+  SelectedAsDependency
+  OmittedByBudget
+  OmittedByPriority
+} derive(Eq, @debug.Debug)
+
+pub(all) struct NodeDecision {
+  node_id : String
+  selected_variant : String?
+  token_cost : Int
+  quality : Int
+  upgraded : Bool
+  reason : DecisionReason
 } derive(Eq, @debug.Debug)
 
 pub(all) struct SelectedContext {

@@ -13,6 +13,10 @@ pub(all) struct ContextPlan {
   selected : Array[SelectedContext]
   used : Int
   available : Int
+  original : Int
+  retained_quality : Int
+  original_quality : Int
+  node_decisions : Array[NodeDecision]
 } derive(Debug, Eq)
 
 ///|
@@ -73,7 +77,18 @@ pub fn plan(
         })
     }
   }
-  { selected, used: used.val, available }
+  let (original, retained_quality, original_quality, node_decisions) = build_plan_details(
+    nodes, required_set, selected_indices,
+  )
+  {
+    selected,
+    used: used.val,
+    available,
+    original,
+    retained_quality,
+    original_quality,
+    node_decisions,
+  }
 }
 
 ///|
@@ -102,4 +117,26 @@ pub fn ContextPlan::selected_variant(
 ///|
 pub fn ContextPlan::contains(self : ContextPlan, node_id : String) -> Bool {
   self.selected_variant(node_id) is Some(_)
+}
+
+///|
+/// Token cost of keeping every node at its highest-quality representation.
+pub fn ContextPlan::original_tokens(self : ContextPlan) -> Int {
+  self.original
+}
+
+///|
+/// Retained quality as an integer percentage of the uncropped context.
+pub fn ContextPlan::quality_retention_percent(self : ContextPlan) -> Int {
+  if self.original_quality == 0 {
+    100
+  } else {
+    (self.retained_quality.to_int64() * 100L / self.original_quality.to_int64()).to_int()
+  }
+}
+
+///|
+/// One decision for every input node, in source order.
+pub fn ContextPlan::decisions(self : ContextPlan) -> Array[NodeDecision] {
+  self.node_decisions.copy()
 }
