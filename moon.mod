@@ -11,3 +11,7 @@ license = "Apache-2.0"
 keywords = [ "agent", "context", "token-budget", "optimization" ]
 
 description = "Dependency-aware context budgeting for MoonBit agents"
+
+import {
+  "moonbitlang/x@0.5.1",
+}
