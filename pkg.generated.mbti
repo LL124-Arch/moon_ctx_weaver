@@ -12,12 +12,16 @@ pub fn context_node(id~ : String, kind~ : ContextKind, variants~ : Array[Context
 
 pub fn context_variant(label~ : String, content~ : String, token_cost~ : Int, quality~ : Int) -> ContextVariant
 
+pub fn plan(Array[ContextNode], BudgetPolicy) -> ContextPlan raise PlanError
+
 pub fn required_closure(Array[ContextNode]) -> Array[String] raise PlanError
 
 pub fn validate_graph(Array[ContextNode]) -> Unit raise PlanError
 
 // Errors
 pub(all) suberror PlanError {
+  InvalidBudget(max_input_tokens~ : Int, reserved_output_tokens~ : Int)
+  RequiredContextExceedsBudget(required_tokens~ : Int, available_tokens~ : Int)
   DuplicateNodeId(String)
   MissingDependency(node_id~ : String, dependency_id~ : String)
   DependencyCycle(Array[String])
@@ -55,11 +59,28 @@ pub(all) struct ContextNode {
   depends_on : Array[String]
 } derive(Eq, @debug.Debug)
 
+pub(all) struct ContextPlan {
+  selected : Array[SelectedContext]
+  used : Int
+  available : Int
+} derive(Eq, @debug.Debug)
+pub fn ContextPlan::available_tokens(Self) -> Int
+pub fn ContextPlan::contains(Self, String) -> Bool
+pub fn ContextPlan::selected_variant(Self, String) -> String?
+pub fn ContextPlan::used_tokens(Self) -> Int
+
 pub(all) struct ContextVariant {
   label : String
   content : String
   token_cost : Int
   quality : Int
+} derive(Eq, @debug.Debug)
+
+pub(all) struct SelectedContext {
+  node_id : String
+  kind : ContextKind
+  variant : ContextVariant
+  order : Int
 } derive(Eq, @debug.Debug)
 
 // Type aliases

@@ -16,26 +16,10 @@ pub(all) struct ContextPlan {
 } derive(Debug, Eq)
 
 ///|
-fn cheapest_variant(node : ContextNode) -> ContextVariant {
-  let mut best = node.variants[0]
-  for index in 1..<node.variants.length() {
-    let candidate = node.variants[index]
-    if candidate.token_cost < best.token_cost ||
-      (
-        candidate.token_cost == best.token_cost &&
-        candidate.quality > best.quality
-      ) {
-      best = candidate
-    }
-  }
-  best
-}
-
-///|
 /// Plan context within the usable input window.
 ///
 /// Required nodes and their transitive dependencies are admitted as one unit.
-/// Optional selection and representation upgrades are added in later passes.
+/// Optional closures and representation upgrades use stable utility/cost passes.
 pub fn plan(
   nodes : Array[ContextNode],
   policy : BudgetPolicy,
@@ -55,27 +39,41 @@ pub fn plan(
   for id in required {
     required_set[id] = true
   }
-  let selected = []
-  let mut used = 0
+  let selected_indices : Map[String, Int] = Map([])
+  let used = Ref(0)
   for node in nodes {
     if required_set.contains(node.id) {
-      let variant = cheapest_variant(node)
-      used += variant.token_cost
-      selected.push({
-        node_id: node.id,
-        kind: node.kind,
-        variant,
-        order: node.order,
-      })
+      let index = cheapest_variant_position(node)
+      selected_indices[node.id] = index
+      used.val += node.variants[index].token_cost
     }
   }
-  if used > available {
+  if used.val > available {
     raise RequiredContextExceedsBudget(
-      required_tokens=used,
+      required_tokens=used.val,
       available_tokens=available,
     )
   }
-  { selected, used, available }
+  let indexed : Map[String, ContextNode] = Map([])
+  for node in nodes {
+    indexed[node.id] = node
+  }
+  select_optional_nodes(nodes, indexed, selected_indices, used, available)
+  upgrade_selected_nodes(nodes, selected_indices, used, available)
+  let selected = []
+  for node in nodes {
+    match selected_indices.get(node.id) {
+      None => ()
+      Some(index) =>
+        selected.push({
+          node_id: node.id,
+          kind: node.kind,
+          variant: node.variants[index],
+          order: node.order,
+        })
+    }
+  }
+  { selected, used: used.val, available }
 }
 
 ///|
