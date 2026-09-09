@@ -1,6 +1,8 @@
 ///|
 /// Structural failures found before budget planning starts.
 pub(all) suberror PlanError {
+  InvalidBudget(max_input_tokens~ : Int, reserved_output_tokens~ : Int)
+  RequiredContextExceedsBudget(required_tokens~ : Int, available_tokens~ : Int)
   DuplicateNodeId(String)
   MissingDependency(node_id~ : String, dependency_id~ : String)
   DependencyCycle(Array[String])
